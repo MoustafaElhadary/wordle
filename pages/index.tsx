@@ -10,7 +10,6 @@ enum LETTER_STATE {
   CORRECT_PLACE,
 }
 export default function Home() {
-  
   const qwerty: {
     key: string
     state: LETTER_STATE
@@ -93,14 +92,27 @@ export default function Home() {
     if (word.length === WORD.length) {
       console.log({ word })
       setTryNumber((tryNumber) => tryNumber + 1)
+
+      const newBoard = [...board]
+      for (let i = (tryNumber - 1) * 5; i < tryNumber * 5; i++) {
+        const index = i % 5
+        let state = LETTER_STATE.INCORRECT_LETTER
+        state = WORD.toLowerCase().includes(board[i].value.toLowerCase())
+          ? LETTER_STATE.CORRECT_LETTER
+          : state
+        state =
+          WORD[index].toLowerCase() === newBoard[i].value.toLowerCase()
+            ? LETTER_STATE.CORRECT_PLACE
+            : state
+
+        newBoard[i] = {
+          ...newBoard[i],
+          state,
+        }
+
+        setBoard(newBoard)
+      }
     }
-    // const newBoard = [...board]
-    // newBoard[currentWordIndex] = {
-    //   ...newBoard[currentWordIndex],
-    //   state: LETTER_STATE.CORRECT_PLACE,
-    // }
-    // setBoard(newBoard)
-    // setCurrentWordIndex((currentWordIndex) => currentWordIndex + 1)
   }
 
   function backspacePressed(): void {
