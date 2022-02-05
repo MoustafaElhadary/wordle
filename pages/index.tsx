@@ -1,8 +1,10 @@
 import { BackspaceIcon } from '@heroicons/react/outline'
 import { classNames } from 'lib/helpers'
-import { useState } from 'react'
+import { words } from 'lib/wordList'
+import _ from 'lodash'
+import { useState, useEffect } from 'react'
 
-const WORD = 'REACT'
+const WORD = words[Math.floor(Math.random() * words.length)]
 enum LETTER_STATE {
   NOT_TRIED,
   CORRECT_LETTER,
@@ -10,47 +12,44 @@ enum LETTER_STATE {
   CORRECT_PLACE,
 }
 export default function Home() {
-  const qwerty: {
+  const keyboard: {
     key: string
     state: LETTER_STATE
-  }[][] = [
-    [
-      { key: 'Q', state: LETTER_STATE.CORRECT_LETTER },
-      { key: 'W', state: LETTER_STATE.CORRECT_PLACE },
-      { key: 'E', state: LETTER_STATE.NOT_TRIED },
-      { key: 'R', state: LETTER_STATE.NOT_TRIED },
-      { key: 'T', state: LETTER_STATE.NOT_TRIED },
-      { key: 'Y', state: LETTER_STATE.NOT_TRIED },
-      { key: 'U', state: LETTER_STATE.NOT_TRIED },
-      { key: 'I', state: LETTER_STATE.NOT_TRIED },
-      { key: 'O', state: LETTER_STATE.NOT_TRIED },
-      { key: 'P', state: LETTER_STATE.NOT_TRIED },
-    ],
-    [
-      { key: 'A', state: LETTER_STATE.NOT_TRIED },
-      { key: 'S', state: LETTER_STATE.NOT_TRIED },
-      { key: 'D', state: LETTER_STATE.NOT_TRIED },
-      { key: 'F', state: LETTER_STATE.NOT_TRIED },
-      { key: 'G', state: LETTER_STATE.NOT_TRIED },
-      { key: 'H', state: LETTER_STATE.NOT_TRIED },
-      { key: 'J', state: LETTER_STATE.NOT_TRIED },
-      { key: 'K', state: LETTER_STATE.NOT_TRIED },
-      { key: 'L', state: LETTER_STATE.NOT_TRIED },
-    ],
-    [
-      { key: 'ENTER', state: LETTER_STATE.NOT_TRIED },
-      { key: 'Z', state: LETTER_STATE.NOT_TRIED },
-      { key: 'X', state: LETTER_STATE.NOT_TRIED },
-      { key: 'C', state: LETTER_STATE.NOT_TRIED },
-      { key: 'V', state: LETTER_STATE.NOT_TRIED },
-      { key: 'B', state: LETTER_STATE.NOT_TRIED },
-      { key: 'N', state: LETTER_STATE.NOT_TRIED },
-      { key: 'M', state: LETTER_STATE.NOT_TRIED },
-      { key: 'DELETE', state: LETTER_STATE.NOT_TRIED },
-    ],
+    level: number
+  }[] = [
+    { key: 'Q', state: LETTER_STATE.NOT_TRIED, level: 1 },
+    { key: 'W', state: LETTER_STATE.NOT_TRIED, level: 1 },
+    { key: 'E', state: LETTER_STATE.NOT_TRIED, level: 1 },
+    { key: 'R', state: LETTER_STATE.NOT_TRIED, level: 1 },
+    { key: 'T', state: LETTER_STATE.NOT_TRIED, level: 1 },
+    { key: 'Y', state: LETTER_STATE.NOT_TRIED, level: 1 },
+    { key: 'U', state: LETTER_STATE.NOT_TRIED, level: 1 },
+    { key: 'I', state: LETTER_STATE.NOT_TRIED, level: 1 },
+    { key: 'O', state: LETTER_STATE.NOT_TRIED, level: 1 },
+    { key: 'P', state: LETTER_STATE.NOT_TRIED, level: 1 },
+
+    { key: 'A', state: LETTER_STATE.NOT_TRIED, level: 2 },
+    { key: 'S', state: LETTER_STATE.NOT_TRIED, level: 2 },
+    { key: 'D', state: LETTER_STATE.NOT_TRIED, level: 2 },
+    { key: 'F', state: LETTER_STATE.NOT_TRIED, level: 2 },
+    { key: 'G', state: LETTER_STATE.NOT_TRIED, level: 2 },
+    { key: 'H', state: LETTER_STATE.NOT_TRIED, level: 2 },
+    { key: 'J', state: LETTER_STATE.NOT_TRIED, level: 2 },
+    { key: 'K', state: LETTER_STATE.NOT_TRIED, level: 2 },
+    { key: 'L', state: LETTER_STATE.NOT_TRIED, level: 2 },
+
+    { key: 'ENTER', state: LETTER_STATE.NOT_TRIED, level: 3 },
+    { key: 'Z', state: LETTER_STATE.NOT_TRIED, level: 3 },
+    { key: 'X', state: LETTER_STATE.NOT_TRIED, level: 3 },
+    { key: 'C', state: LETTER_STATE.NOT_TRIED, level: 3 },
+    { key: 'V', state: LETTER_STATE.NOT_TRIED, level: 3 },
+    { key: 'B', state: LETTER_STATE.NOT_TRIED, level: 3 },
+    { key: 'N', state: LETTER_STATE.NOT_TRIED, level: 3 },
+    { key: 'M', state: LETTER_STATE.NOT_TRIED, level: 3 },
+    { key: 'DELETE', state: LETTER_STATE.NOT_TRIED, level: 3 },
   ]
 
-  const [currentKeyboard, setCurrentKeyboard] = useState(qwerty)
+  const [currentKeyboard, setCurrentKeyboard] = useState(keyboard)
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const [tryNumber, setTryNumber] = useState(1)
   const [board, setBoard] = useState<
@@ -90,10 +89,11 @@ export default function Home() {
       .join('')
 
     if (word.length === WORD.length) {
-      console.log({ word })
       setTryNumber((tryNumber) => tryNumber + 1)
 
       const newBoard = [...board]
+      const newKeyboard = [...currentKeyboard]
+
       for (let i = (tryNumber - 1) * 5; i < tryNumber * 5; i++) {
         const index = i % 5
         let state = LETTER_STATE.INCORRECT_LETTER
@@ -110,6 +110,17 @@ export default function Home() {
           state,
         }
 
+        const keyboardIndex = currentKeyboard.findIndex(
+          (k) => k.key.toLowerCase() === newBoard[i].value.toLowerCase()
+        )
+
+
+        newKeyboard[keyboardIndex] = {
+          ...newKeyboard[keyboardIndex],
+          state,
+        }
+
+        setCurrentKeyboard(newKeyboard)
         setBoard(newBoard)
       }
     }
@@ -139,7 +150,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-between bg-neutral-900 py-2">
       <header className=" border-b-2 border-b-slate-200">
-        <h1 className="text-4xl font-extrabold uppercase text-white">Wordle</h1>
+        <h1 className="text-4xl font-extrabold uppercase text-white">MousDle</h1>
       </header>
 
       <div className="grid grid-cols-5 grid-rows-6 gap-2">
@@ -159,7 +170,7 @@ export default function Home() {
       </div>
 
       <div id="keyboard">
-        {currentKeyboard.map((row, i) => (
+        {_.values(_.groupBy(currentKeyboard, 'level')).map((row, i) => (
           <div
             key={i}
             className="flex flex-row items-center justify-center py-1"
