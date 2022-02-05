@@ -4,7 +4,6 @@ import { words } from 'lib/wordList'
 import _ from 'lodash'
 import { useState, useEffect } from 'react'
 
-const WORD = words[Math.floor(Math.random() * words.length)]
 enum LETTER_STATE {
   NOT_TRIED,
   CORRECT_LETTER,
@@ -49,6 +48,7 @@ export default function Home() {
     { key: 'DELETE', state: LETTER_STATE.NOT_TRIED, level: 3 },
   ]
 
+  const [WORD] = useState(words[Math.floor(Math.random() * words.length)])
   const [currentKeyboard, setCurrentKeyboard] = useState(keyboard)
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const [tryNumber, setTryNumber] = useState(1)
@@ -66,8 +66,12 @@ export default function Home() {
     }))
   )
 
+  useEffect(() => {
+    //for dev purposes only
+    console.log({ WORD })
+  }, [])
+
   function addLetter(key: string): void {
-    console.log({ currentWordIndex, tryNumber })
     if (
       tryNumber * 5 > currentWordIndex &&
       (tryNumber - 1) * 5 <= currentWordIndex
@@ -114,7 +118,6 @@ export default function Home() {
           (k) => k.key.toLowerCase() === newBoard[i].value.toLowerCase()
         )
 
-
         newKeyboard[keyboardIndex] = {
           ...newKeyboard[keyboardIndex],
           state,
@@ -134,7 +137,6 @@ export default function Home() {
       const newBoard = [...board]
       let idx = currentWordIndex
 
-      console.log({ idx, b: newBoard[idx] })
       if (newBoard[idx].value === '' && idx > 0) {
         idx--
       }
@@ -150,8 +152,25 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-between bg-neutral-900 py-2">
       <header className=" border-b-2 border-b-slate-200">
-        <h1 className="text-4xl font-extrabold uppercase text-white">MousDle</h1>
+        <h1 className="text-4xl font-extrabold uppercase text-white">Mordle</h1>
       </header>
+
+      <div className="flex flex-col items-start justify-between">
+        {_.chunk(
+          board
+            .slice(0, currentWordIndex)
+            .map(({ state }) =>
+              state === LETTER_STATE.CORRECT_PLACE
+                ? '🟩'
+                : state === LETTER_STATE.CORRECT_LETTER
+                ? '🟨'
+                : '⬛'
+            ),
+          5
+        ).map((x,i) => (
+          <span key={i}>{x.join('')}</span>
+        ))}
+      </div>
 
       <div className="grid grid-cols-5 grid-rows-6 gap-2">
         {board.map(({ value, state }, i) => (
