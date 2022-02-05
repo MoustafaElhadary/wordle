@@ -1,13 +1,5 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
-
-const Home: NextPage = () => {
+export default function Home() {
   return (
-    <div>
-      hello world
-    </div>
-  )
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-500 py-2"></div>
+  );
 }
-
-export default Home
